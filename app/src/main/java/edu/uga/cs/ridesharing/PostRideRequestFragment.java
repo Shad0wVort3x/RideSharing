@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +51,11 @@ public class PostRideRequestFragment extends Fragment {
         fromEditText = view.findViewById(R.id.fromEditText);
         toEditText = view.findViewById(R.id.toEditText);
         postRideRequestButton = view.findViewById(R.id.postRideRequestButton);
+        dateEditText.setInputType(InputType.TYPE_NULL);
+        dateEditText.setFocusable(false);
+
+        timeEditText.setInputType(InputType.TYPE_NULL);
+        timeEditText.setFocusable(false);
         dateEditText.setOnClickListener(v -> showDatePicker());
         timeEditText.setOnClickListener(v -> showTimePicker());
         databaseReference = FirebaseDatabase.getInstance().getReference();

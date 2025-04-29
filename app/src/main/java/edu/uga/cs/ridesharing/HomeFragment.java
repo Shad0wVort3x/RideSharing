@@ -23,7 +23,7 @@ import com.google.firebase.database.DatabaseError;
 
 public class HomeFragment extends Fragment {
 
-    private Button postRideOfferButton, postRideRequestButton, viewRideOffersButton, viewRideRequestsButton, viewAcceptedRidesButton, logoutButton, viewRideHistoryButton;
+    private Button postRideOfferButton, postRideRequestButton, viewRideOffersButton, viewRideRequestsButton, viewAcceptedRidesButton, logoutButton, viewRideHistoryButton, manageMyRidesButton;
     private TextView pointsTextView;
     private TextView notificationBadge;
     private FirebaseAuth mAuth;
@@ -50,7 +50,7 @@ public class HomeFragment extends Fragment {
         viewAcceptedRidesButton = view.findViewById(R.id.viewAcceptedRidesButton);
         logoutButton = view.findViewById(R.id.logoutButton);
         viewRideHistoryButton = view.findViewById(R.id.viewRideHistoryButton);
-
+        manageMyRidesButton = view.findViewById(R.id.manageMyRidesButton);
         // Points
         pointsTextView = view.findViewById(R.id.pointsTextView);
 
@@ -102,6 +102,12 @@ public class HomeFragment extends Fragment {
         viewRideRequestsButton.setOnClickListener(v -> navigateTo(new ViewRideRequestsFragment()));
         viewAcceptedRidesButton.setOnClickListener(v -> navigateTo(new ViewAcceptedRidesFragment()));
         viewRideHistoryButton.setOnClickListener(v -> navigateTo(new ViewRideHistoryFragment()));
+        manageMyRidesButton.setOnClickListener(v -> {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new ManageMyRidesFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
         logoutButton.setOnClickListener(v -> {
             mAuth.signOut();
             Toast.makeText(getActivity(), "Logged out", Toast.LENGTH_SHORT).show();

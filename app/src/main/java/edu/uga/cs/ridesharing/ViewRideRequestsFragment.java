@@ -78,9 +78,11 @@ public class ViewRideRequestsFragment extends Fragment implements RideRequestAda
                 rideRequestList.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     RideRequest rideRequest = dataSnapshot.getValue(RideRequest.class);
-                    rideRequest.setRequestID(dataSnapshot.getKey());
-                    if (rideRequest.getAcceptedBy() == null) {
-                        rideRequestList.add(rideRequest);
+                    if (rideRequest != null) {
+                        rideRequest.setRequestID(dataSnapshot.getKey());
+                        if (rideRequest.getAcceptedBy() == null || "null".equals(rideRequest.getAcceptedBy())) {
+                            rideRequestList.add(rideRequest);
+                        }
                     }
                 }
                 // Sort manually by date and time
@@ -101,6 +103,7 @@ public class ViewRideRequestsFragment extends Fragment implements RideRequestAda
             }
         });
     }
+
 
     @Override
     public void onRideRequestClick(RideRequest rideRequest) {

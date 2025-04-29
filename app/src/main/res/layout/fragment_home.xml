@@ -121,7 +121,12 @@
             android:layout_height="wrap_content"
             android:text="View Ride History"
             android:layout_marginTop="8dp"/>
-
+        <Button
+            android:id="@+id/manageMyRidesButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Manage My Rides"
+            android:layout_marginTop="8dp"/>
 
         <Button
             android:id="@+id/logoutButton"
