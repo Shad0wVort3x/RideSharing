@@ -51,6 +51,16 @@ public class ManageMyRidesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Setup the Toolbar
+        androidx.appcompat.widget.Toolbar toolbar = view.findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+        toolbar.setNavigationOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new HomeFragment())
+                    .commit();
+        });
+
+        // RecyclerViews setup
         offersRecyclerView = view.findViewById(R.id.myRideOffersRecyclerView);
         requestsRecyclerView = view.findViewById(R.id.myRideRequestsRecyclerView);
 
@@ -72,6 +82,7 @@ public class ManageMyRidesFragment extends Fragment {
 
         loadMyRides();
     }
+
 
     private void loadMyRides() {
         String uid = mAuth.getCurrentUser().getUid();

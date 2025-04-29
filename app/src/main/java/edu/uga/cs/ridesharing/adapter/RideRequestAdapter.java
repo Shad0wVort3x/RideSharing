@@ -3,6 +3,7 @@ package edu.uga.cs.ridesharing.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -43,6 +44,7 @@ public class RideRequestAdapter extends RecyclerView.Adapter<RideRequestAdapter.
         holder.fromToTextView.setText("From: " + rideRequest.getFrom() + " To: " + rideRequest.getTo());
 
         holder.itemView.setOnClickListener(v -> listener.onRideRequestClick(rideRequest));
+        holder.acceptButton.setOnClickListener(v -> listener.onRideRequestClick(rideRequest));
     }
 
     @Override
@@ -52,12 +54,14 @@ public class RideRequestAdapter extends RecyclerView.Adapter<RideRequestAdapter.
 
     static class RideRequestViewHolder extends RecyclerView.ViewHolder {
         TextView dateTextView, timeTextView, fromToTextView;
+        Button acceptButton;
 
         public RideRequestViewHolder(@NonNull View itemView) {
             super(itemView);
             dateTextView = itemView.findViewById(R.id.dateTextView);
             timeTextView = itemView.findViewById(R.id.timeTextView);
             fromToTextView = itemView.findViewById(R.id.fromToTextView);
+            acceptButton = itemView.findViewById(R.id.acceptButton);
         }
     }
 }
