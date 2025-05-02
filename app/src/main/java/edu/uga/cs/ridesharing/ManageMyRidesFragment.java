@@ -1,6 +1,8 @@
 package edu.uga.cs.ridesharing;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -23,6 +25,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import edu.uga.cs.ridesharing.adapter.ManageRideAdapter;
@@ -100,6 +103,16 @@ public class ManageMyRidesFragment extends Fragment {
                                 rideOffers.add(offer);
                             }
                         }
+                        rideOffers.sort((o1, o2) -> {
+                            try {
+                                String dt1 = o1.getDate() + " " + o1.getTime();
+                                String dt2 = o2.getDate() + " " + o2.getTime();
+                                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM/dd/yyyy hh:mm a");
+                                return sdf.parse(dt1).compareTo(sdf.parse(dt2));
+                            } catch (Exception e) {
+                                return 0;
+                            }
+                        });
                         offerAdapter.notifyDataSetChanged();
                     }
 
@@ -120,6 +133,17 @@ public class ManageMyRidesFragment extends Fragment {
                                 rideRequests.add(request);
                             }
                         }
+                        rideRequests.sort((r1, r2) -> {
+                            try {
+                                String dt1 = r1.getDate() + " " + r1.getTime();
+                                String dt2 = r2.getDate() + " " + r2.getTime();
+                                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM/dd/yyyy hh:mm a");
+                                return sdf.parse(dt1).compareTo(sdf.parse(dt2));
+                            } catch (Exception e) {
+                                return 0;
+                            }
+                        });
+
                         requestAdapter.notifyDataSetChanged();
                     }
 
@@ -146,6 +170,12 @@ public class ManageMyRidesFragment extends Fragment {
         EditText editFrom = dialogView.findViewById(R.id.editFrom);
         EditText editTo = dialogView.findViewById(R.id.editTo);
 
+        // Disable manual input
+        editDate.setInputType(InputType.TYPE_NULL);
+        editDate.setFocusable(false);
+        editTime.setInputType(InputType.TYPE_NULL);
+        editTime.setFocusable(false);
+
         if (offer != null) {
             editDate.setText(offer.getDate());
             editTime.setText(offer.getTime());
@@ -157,6 +187,38 @@ public class ManageMyRidesFragment extends Fragment {
             editFrom.setText(request.getFrom());
             editTo.setText(request.getTo());
         }
+
+        // Date picker
+        editDate.setOnClickListener(v -> {
+            final Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                    (view, selectedYear, selectedMonth, selectedDay) -> {
+                        String formattedDate = String.format("%02d/%02d/%04d", selectedMonth + 1, selectedDay, selectedYear);
+                        editDate.setText(formattedDate);
+                    }, year, month, day);
+            datePickerDialog.show();
+        });
+
+        // Time picker
+        editTime.setOnClickListener(v -> {
+            final Calendar calendar = Calendar.getInstance();
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
+
+            TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+                    (view, selectedHour, selectedMinute) -> {
+                        String amPm = selectedHour >= 12 ? "PM" : "AM";
+                        int hourIn12 = selectedHour % 12;
+                        if (hourIn12 == 0) hourIn12 = 12;
+                        String formattedTime = String.format("%02d:%02d %s", hourIn12, selectedMinute, amPm);
+                        editTime.setText(formattedTime);
+                    }, hour, minute, false);
+            timePickerDialog.show();
+        });
 
         builder.setView(dialogView);
         builder.setPositiveButton("Save", (dialog, which) -> {
@@ -185,6 +247,7 @@ public class ManageMyRidesFragment extends Fragment {
         builder.setNegativeButton("Cancel", null);
         builder.show();
     }
+
 
     public void deleteRideOffer(RideOffer offer) {
         offersRef.child(offer.getRideID()).removeValue()

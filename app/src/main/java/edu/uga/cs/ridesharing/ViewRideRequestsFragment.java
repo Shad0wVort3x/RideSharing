@@ -85,15 +85,22 @@ public class ViewRideRequestsFragment extends Fragment implements RideRequestAda
                         }
                     }
                 }
-                // Sort manually by date and time
+
                 Collections.sort(rideRequestList, (o1, o2) -> {
-                    int dateCompare = o1.getDate().compareTo(o2.getDate());
-                    if (dateCompare == 0) {
-                        return o1.getTime().compareTo(o2.getTime());
-                    } else {
-                        return dateCompare;
+                    try {
+                        String dt1 = o1.getDate() + " " + o1.getTime();
+                        String dt2 = o2.getDate() + " " + o2.getTime();
+
+                        java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("MM/dd/yyyy hh:mm a");
+                        java.util.Date dateTime1 = format.parse(dt1);
+                        java.util.Date dateTime2 = format.parse(dt2);
+
+                        return dateTime1.compareTo(dateTime2);
+                    } catch (Exception e) {
+                        return 0;
                     }
                 });
+
                 rideRequestAdapter.notifyDataSetChanged();
             }
 

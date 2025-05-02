@@ -82,6 +82,19 @@ public class ViewAcceptedRidesFragment extends Fragment {
                         }
                     }
                 }
+
+                // Sort by date and time
+                acceptedRideList.sort((r1, r2) -> {
+                    try {
+                        String dt1 = r1.getDate() + " " + r1.getTime();
+                        String dt2 = r2.getDate() + " " + r2.getTime();
+                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM/dd/yyyy hh:mm a");
+                        return sdf.parse(dt1).compareTo(sdf.parse(dt2));
+                    } catch (Exception e) {
+                        return 0;
+                    }
+                });
+
                 acceptedRideAdapter.notifyDataSetChanged();
             }
 
