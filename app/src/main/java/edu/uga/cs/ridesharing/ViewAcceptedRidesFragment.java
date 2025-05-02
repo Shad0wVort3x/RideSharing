@@ -25,7 +25,10 @@ import java.util.List;
 
 import edu.uga.cs.ridesharing.adapter.AcceptedRideAdapter;
 import edu.uga.cs.ridesharing.model.AcceptedRide;
-
+/**
+ * Fragment that displays a list of accepted rides for the currently logged-in user.
+ * The rides are loaded from Firebase Realtime Database and shown in a sorted list by date and time.
+ */
 public class ViewAcceptedRidesFragment extends Fragment {
 
     private RecyclerView recyclerView;
@@ -33,17 +36,32 @@ public class ViewAcceptedRidesFragment extends Fragment {
     private List<AcceptedRide> acceptedRideList;
     private DatabaseReference acceptedRidesRef;
     private FirebaseAuth mAuth;
-
+    /**
+     * Required empty public constructor.
+     */
     public ViewAcceptedRidesFragment() {
-        // Required empty public constructor
-    }
 
+    }
+    /**
+     * Inflates the layout for this fragment.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate any views.
+     * @param container          The parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     * @return The root view of the fragment's layout.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_view_accepted_rides, container, false);
     }
-
+    /**
+     * Called immediately after onCreateView. Sets up UI components,
+     * initializes Firebase references, and loads the accepted rides.
+     *
+     * @param view               The fragment's root view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -66,7 +84,10 @@ public class ViewAcceptedRidesFragment extends Fragment {
 
         loadAcceptedRides();
     }
-
+    /**
+     * Loads all accepted rides from the Firebase Realtime Database.
+     * Filters for rides related to the current user and sorts them by date and time (earliest first).
+     */
     private void loadAcceptedRides() {
         acceptedRidesRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -83,7 +104,6 @@ public class ViewAcceptedRidesFragment extends Fragment {
                     }
                 }
 
-                // Sort by date and time
                 acceptedRideList.sort((r1, r2) -> {
                     try {
                         String dt1 = r1.getDate() + " " + r1.getTime();

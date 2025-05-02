@@ -14,25 +14,41 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-
+/**
+ * LoginFragment handles the user login interface and logic.
+ * It allows users to input their email and password and sign into the application.
+ * It also provides navigation to the registration screen.
+ */
 public class LoginFragment extends Fragment {
 
     private EditText emailEditText, passwordEditText;
     private Button loginButton;
     private FirebaseAuth mAuth;
     private TextView goToRegisterTextView;
-
+    /**
+     * Required empty public constructor.
+     */
     public LoginFragment() {
-        // Required empty public constructor
-    }
 
+    }
+    /**
+     * Inflates the layout for this fragment.
+     * @param inflater The LayoutInflater object
+     * @param container The container view the fragment UI should be attached to
+     * @param savedInstanceState Saved state if available
+     * @return The root view of the fragment
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         return inflater.inflate(R.layout.fragment_login, container, false);
     }
-
+    /**
+     * Initializes UI components, Firebase auth instance, and sets up button listeners.
+     * @param view The fragment's root view
+     * @param savedInstanceState Saved state if available
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -49,14 +65,18 @@ public class LoginFragment extends Fragment {
         goToRegisterTextView = view.findViewById(R.id.goToRegisterTextView);
 
         goToRegisterTextView.setOnClickListener(v -> {
-            // Navigate to RegisterFragment
+
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new RegisterFragment())
                     .addToBackStack(null)
                     .commit();
         });
     }
-
+    /**
+     * Attempts to log the user in using Firebase Authentication with the provided credentials.
+     * Shows error messages if fields are empty or if authentication fails.
+     * Navigates to HomeFragment upon successful login.
+     */
     private void loginUser() {
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();

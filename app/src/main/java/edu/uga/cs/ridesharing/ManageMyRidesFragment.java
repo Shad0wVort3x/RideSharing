@@ -31,7 +31,10 @@ import java.util.List;
 import edu.uga.cs.ridesharing.adapter.ManageRideAdapter;
 import edu.uga.cs.ridesharing.model.RideOffer;
 import edu.uga.cs.ridesharing.model.RideRequest;
-
+/**
+ * Fragment allowing users to manage their posted ride offers and requests that are still unaccepted.
+ * Users can edit or delete unaccepted rides, and view them in sorted order by date and time.
+ */
 public class ManageMyRidesFragment extends Fragment {
 
     private RecyclerView offersRecyclerView, requestsRecyclerView;
@@ -43,18 +46,22 @@ public class ManageMyRidesFragment extends Fragment {
     private FirebaseAuth mAuth;
 
     public ManageMyRidesFragment() {}
-
+    /**
+     * Inflates the layout for this fragment.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_manage_my_rides, container, false);
     }
-
+    /**
+     * Initializes the views, sets up RecyclerViews, and loads the user's unaccepted rides.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Setup the Toolbar
+
         androidx.appcompat.widget.Toolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         toolbar.setNavigationOnClickListener(v -> {
@@ -63,7 +70,7 @@ public class ManageMyRidesFragment extends Fragment {
                     .commit();
         });
 
-        // RecyclerViews setup
+
         offersRecyclerView = view.findViewById(R.id.myRideOffersRecyclerView);
         requestsRecyclerView = view.findViewById(R.id.myRideRequestsRecyclerView);
 
@@ -85,12 +92,15 @@ public class ManageMyRidesFragment extends Fragment {
 
         loadMyRides();
     }
-
+    /**
+     * Loads logged-in user's unaccepted ride offers and requests from Firebase.
+     * Also sorts both lists by date and time in ascending order.
+     */
 
     private void loadMyRides() {
         String uid = mAuth.getCurrentUser().getUid();
 
-        // Load my unaccepted Ride Offers
+
         offersRef.orderByChild("driverUID").equalTo(uid)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -120,7 +130,7 @@ public class ManageMyRidesFragment extends Fragment {
                     public void onCancelled(@NonNull DatabaseError error) { }
                 });
 
-        // Load my unaccepted Ride Requests
+
         requestsRef.orderByChild("riderUID").equalTo(uid)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -151,15 +161,24 @@ public class ManageMyRidesFragment extends Fragment {
                     public void onCancelled(@NonNull DatabaseError error) { }
                 });
     }
-
+    /**
+     * Opens an edit dialog to allow the user to update a ride offer.
+     * @param rideOffer The offer to be edited.
+     */
     public void editRideOffer(RideOffer rideOffer) {
         showEditDialog(rideOffer, null);
     }
-
+    /**
+     * Opens an edit dialog to allow the user to update a ride request.
+     * @param rideRequest The request to be edited.
+     */
     public void editRideRequest(RideRequest rideRequest) {
         showEditDialog(null, rideRequest);
     }
-
+    /**
+     * Displays an AlertDialog that lets the user update date, time, from, and to fields.
+     * Ensures date and time pickers are used for those fields.
+     */
     private void showEditDialog(RideOffer offer, RideRequest request) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Edit Ride");
@@ -248,7 +267,10 @@ public class ManageMyRidesFragment extends Fragment {
         builder.show();
     }
 
-
+    /**
+     * Deletes a ride offer from Firebase and refreshes the list.
+     * @param offer The ride offer to delete.
+     */
     public void deleteRideOffer(RideOffer offer) {
         offersRef.child(offer.getRideID()).removeValue()
                 .addOnSuccessListener(unused -> {
@@ -256,7 +278,10 @@ public class ManageMyRidesFragment extends Fragment {
                     loadMyRides();
                 });
     }
-
+    /**
+     * Deletes a ride request from Firebase and refreshes the list.
+     * @param request The ride request to delete.
+     */
     public void deleteRideRequest(RideRequest request) {
         requestsRef.child(request.getRequestID()).removeValue()
                 .addOnSuccessListener(unused -> {

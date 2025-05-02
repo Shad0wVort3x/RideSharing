@@ -5,10 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.List;
 
 import edu.uga.cs.ridesharing.ManageMyRidesFragment;
@@ -16,6 +14,10 @@ import edu.uga.cs.ridesharing.R;
 import edu.uga.cs.ridesharing.model.RideOffer;
 import edu.uga.cs.ridesharing.model.RideRequest;
 
+/**
+ * Adapter to show and manage the user unaccepted ride offer/requests. Allows user
+ * to edit and delete  rides.
+ */
 public class ManageRideAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int TYPE_OFFER = 0;
@@ -25,6 +27,12 @@ public class ManageRideAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private List<RideRequest> rideRequests;
     private ManageMyRidesFragment fragment;
 
+    /**
+     * Constructor
+     * @param rideOffers
+     * @param rideRequests
+     * @param fragment
+     */
     public ManageRideAdapter(List<RideOffer> rideOffers, List<RideRequest> rideRequests, ManageMyRidesFragment fragment) {
         this.rideOffers = rideOffers;
         this.rideRequests = rideRequests;
@@ -77,7 +85,9 @@ public class ManageRideAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     class RideOfferViewHolder extends RecyclerView.ViewHolder {
         TextView dateTextView, timeTextView, fromToTextView;
         Button editButton, deleteButton;
-
+        /**
+         * ViewHolder to display ride offer with edit and delete.
+         */
         public RideOfferViewHolder(@NonNull View itemView) {
             super(itemView);
             dateTextView = itemView.findViewById(R.id.dateTextView);
@@ -86,7 +96,11 @@ public class ManageRideAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             editButton = itemView.findViewById(R.id.editButton);
             deleteButton = itemView.findViewById(R.id.deleteButton);
         }
-
+        /**
+         * Bind the ride offer data to the views and sets up button listeners.
+         *
+         * @param offer RideOffer object to bind.
+         */
         public void bind(RideOffer offer) {
             dateTextView.setText("Date: " + offer.getDate());
             timeTextView.setText("Time: " + offer.getTime());
@@ -96,7 +110,9 @@ public class ManageRideAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             deleteButton.setOnClickListener(v -> fragment.deleteRideOffer(offer));
         }
     }
-
+    /**
+     * ViewHolder to display a ride request with edit and delete.
+     */
     class RideRequestViewHolder extends RecyclerView.ViewHolder {
         TextView dateTextView, timeTextView, fromToTextView;
         Button editButton, deleteButton;
@@ -110,6 +126,11 @@ public class ManageRideAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             deleteButton = itemView.findViewById(R.id.deleteButton);
         }
 
+        /**
+         * Binds the RideRequest data to the views and sets up button listeners.
+         *
+         * @param request RideRequest object to bind.
+         */
         public void bind(RideRequest request) {
             dateTextView.setText("Date: " + request.getDate());
             timeTextView.setText("Time: " + request.getTime());

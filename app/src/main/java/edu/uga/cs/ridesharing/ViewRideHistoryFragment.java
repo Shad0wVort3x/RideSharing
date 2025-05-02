@@ -36,7 +36,7 @@ public class ViewRideHistoryFragment extends Fragment {
     private FirebaseAuth mAuth;
 
     public ViewRideHistoryFragment() {
-        // Required empty public constructor
+
     }
 
     @Override

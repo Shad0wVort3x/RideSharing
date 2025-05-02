@@ -26,7 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uga.cs.ridesharing.adapter.NotificationAdapter;
-
+/**
+ * Fragment that displays a list of notifications for the logged-in user.
+ * Users can also clear all notifications from Firebase.
+ */
 public class ViewNotificationsFragment extends Fragment {
 
     private RecyclerView recyclerView;
@@ -35,17 +38,32 @@ public class ViewNotificationsFragment extends Fragment {
     private DatabaseReference notificationsRef;
     private FirebaseAuth mAuth;
     private Button clearNotificationsButton;
-
+    /**
+     * Required empty public constructor.
+     */
     public ViewNotificationsFragment() {
-        // Required empty public constructor
-    }
 
+    }
+    /**
+     * Inflates the layout for the notifications screen.
+     *
+     * @param inflater           The LayoutInflater used to inflate views in the fragment.
+     * @param container          The parent view the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, the fragment is being re-created.
+     * @return The root view for this fragment's layout.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_view_notifications, container, false);
     }
-
+    /**
+     * Called immediately after onCreateView.
+     * Initializes views, sets up Firebase, loads notifications, and handles clear action.
+     *
+     * @param view               The fragment's root view.
+     * @param savedInstanceState If non-null, the fragment is being re-created.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -82,7 +100,10 @@ public class ViewNotificationsFragment extends Fragment {
             });
         });
     }
-
+    /**
+     * Loads the list of notifications from Firebase Realtime Database
+     * and updates the RecyclerView.
+     */
     private void loadNotifications() {
         notificationsRef.addValueEventListener(new ValueEventListener() {
             @Override

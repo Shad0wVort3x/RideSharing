@@ -23,24 +23,42 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * Fragment that allows users to post a ride request by selecting a date, time,
+ * origin, and destination. The request is then submitted to Firebase Realtime Database.
+ */
 public class PostRideRequestFragment extends Fragment {
 
     private EditText dateEditText, timeEditText, fromEditText, toEditText;
     private Button postRideRequestButton;
     private DatabaseReference databaseReference;
     private FirebaseAuth mAuth;
-
+    /**
+     * Required empty public constructor.
+     */
     public PostRideRequestFragment() {
-        // Required empty public constructor
-    }
 
+    }
+    /**
+     * Inflates the layout for this fragment.
+     * @param inflater The LayoutInflater object that can be used to inflate views.
+     * @param container The parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed.
+     * @return The view for this fragment's UI.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_post_ride_request, container, false);
     }
 
+    /**
+     * Called after the view has been created. Initializes input fields, sets up
+     * listeners for date and time pickers, and defines the post request logic.
+     *
+     * @param view The root view of the fragment.
+     * @param savedInstanceState The saved instance state.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -65,44 +83,57 @@ public class PostRideRequestFragment extends Fragment {
             postRideRequest();
         });
     }
+
+    /**
+     * Displays a DatePickerDialog for the user to select a date.
+     * Updates the dateEditText with the selected value.
+     */
     private void showDatePicker() {
-        // Get today's date
+
         final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        // Create DatePickerDialog
+
         DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
                 (view, selectedYear, selectedMonth, selectedDay) -> {
-                    // Month is 0-based so add 1
+
                     String formattedDate = String.format("%02d/%02d/%04d", selectedMonth + 1, selectedDay, selectedYear);
                     dateEditText.setText(formattedDate);
                 }, year, month, day);
 
         datePickerDialog.show();
     }
+    /**
+     * Displays a TimePickerDialog for the user to select a time.
+     * Updates the timeEditText with the selected value in 12-hour format.
+     */
     private void showTimePicker() {
-        // Get current time
+
         final Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        // Create TimePickerDialog
+
         TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
                 (view, selectedHour, selectedMinute) -> {
-                    // Optional: Format to am/pm
+
                     String amPm = selectedHour >= 12 ? "PM" : "AM";
                     int hourIn12Format = selectedHour % 12;
                     if (hourIn12Format == 0) hourIn12Format = 12;
 
                     String formattedTime = String.format("%02d:%02d %s", hourIn12Format, selectedMinute, amPm);
                     timeEditText.setText(formattedTime);
-                }, hour, minute, false); // false for 12-hour clock
+                }, hour, minute, false);
 
         timePickerDialog.show();
     }
 
+    /**
+     * Validates input fields and submits the ride request to Firebase.
+     * Shows appropriate Toast messages for success or failure.
+     */
     private void postRideRequest() {
         String date = dateEditText.getText().toString().trim();
         String time = timeEditText.getText().toString().trim();
@@ -114,7 +145,6 @@ public class PostRideRequestFragment extends Fragment {
             return;
         }
 
-        // Create a new ride request map
         Map<String, Object> rideRequest = new HashMap<>();
         rideRequest.put("riderUID", mAuth.getCurrentUser().getUid());
         rideRequest.put("date", date);
@@ -123,12 +153,10 @@ public class PostRideRequestFragment extends Fragment {
         rideRequest.put("to", to);
         rideRequest.put("acceptedBy", null);
 
-        // Push it to "rideRequests" in Firebase
         databaseReference.child("rideRequests").push().setValue(rideRequest)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(getActivity(), "Ride Request Posted Successfully!", Toast.LENGTH_SHORT).show();
-                        // Optional: Go back to HomeFragment after posting
                         getParentFragmentManager().beginTransaction()
                                 .replace(R.id.fragment_container, new HomeFragment())
                                 .commit();

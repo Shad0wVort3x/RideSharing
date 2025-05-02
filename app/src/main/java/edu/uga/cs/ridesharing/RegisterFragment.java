@@ -19,7 +19,11 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * Fragment that handles user registration using Firebase Authentication.
+ * On successful registration, it also initializes the user in the Firebase Realtime Database
+ * with a starting balance of 100 ride points and redirects to the login screen.
+ */
 public class RegisterFragment extends Fragment {
 
     private EditText emailEditText, passwordEditText;
@@ -27,16 +31,33 @@ public class RegisterFragment extends Fragment {
     private FirebaseAuth mAuth;
     private TextView goToLoginTextView;
 
+    /**
+     * Required empty public constructor.
+     */
     public RegisterFragment() {
 
     }
 
+    /**
+     * Inflates the registration layout for the fragment.
+     *
+     * @param inflater           LayoutInflater used to inflate views.
+     * @param container          The parent view that this fragment's UI should be attached to.
+     * @param savedInstanceState The saved state of the fragment (if any).
+     * @return The root view of the fragment's layout.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_register, container, false);
     }
-
+    /**
+     * Called after the view has been created. Initializes UI components,
+     * sets up listeners for register and login navigation actions.
+     *
+     * @param view               The fragment's root view.
+     * @param savedInstanceState The saved state of the fragment (if any).
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -60,7 +81,13 @@ public class RegisterFragment extends Fragment {
                     .commit();
         });
     }
-
+    /**
+     * Handles the registration process:
+     * - Validates input fields.
+     * - Creates a new user in Firebase Authentication.
+     * - Adds user info to the Realtime Database.
+     * - Navigates to the LoginFragment on success.
+     */
     private void registerUser() {
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
@@ -81,10 +108,8 @@ public class RegisterFragment extends Fragment {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(getActivity(), task -> {
                     if (task.isSuccessful()) {
-                        // Registration success
                         Toast.makeText(getActivity(), "Registration Successful! You can now log in.", Toast.LENGTH_SHORT).show();
 
-                        // Add user to Firebase Realtime Database
                         String uid = mAuth.getCurrentUser().getUid();
                         DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
                         Map<String, Object> userMap = new HashMap<>();
@@ -92,12 +117,10 @@ public class RegisterFragment extends Fragment {
                         userMap.put("points", 100); // initial 100 ride points
                         usersRef.child(uid).setValue(userMap);
 
-                        // Navigate back to LoginFragment
                         getParentFragmentManager().beginTransaction()
                                 .replace(R.id.fragment_container, new LoginFragment())
                                 .commit();
                     } else {
-                        // Registration failed
                         Toast.makeText(getActivity(), "Registration Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });

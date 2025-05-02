@@ -7,23 +7,30 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
 import java.util.List;
 
 import edu.uga.cs.ridesharing.R;
 import edu.uga.cs.ridesharing.model.AcceptedRide;
 
+/**
+ * Adapter class used to display and interact with a list of accepted rides.
+ * Shows ride info and allows user to confirm a ride.
+ */
 public class AcceptedRideAdapter extends RecyclerView.Adapter<AcceptedRideAdapter.AcceptedRideViewHolder> {
 
     private List<AcceptedRide> acceptedRides;
     private Context context;
+
+    /**
+     * Constructor.
+     * @param context
+     * @param acceptedRides
+     */
     public AcceptedRideAdapter(Context context, List<AcceptedRide> acceptedRides) {
         this.context = context;
         this.acceptedRides = acceptedRides;
@@ -45,8 +52,7 @@ public class AcceptedRideAdapter extends RecyclerView.Adapter<AcceptedRideAdapte
         holder.dateTextView.setText("Date: " + ride.getDate());
         holder.timeTextView.setText("Time: " + ride.getTime());
         holder.fromToTextView.setText("From: " + ride.getFrom() + " To: " + ride.getTo());
-
-        // Show the user's role (Driver or Rider)
+        // Set role
         if (currentUID.equals(ride.getDriverUID())) {
             holder.roleTextView.setText("Role: Driver");
         } else if (currentUID.equals(ride.getRiderUID())) {
@@ -55,7 +61,6 @@ public class AcceptedRideAdapter extends RecyclerView.Adapter<AcceptedRideAdapte
             holder.roleTextView.setText("Role: Unknown");
         }
 
-        // Confirm button
         holder.confirmButton.setOnClickListener(v -> confirmRide(ride));
     }
 
@@ -63,6 +68,10 @@ public class AcceptedRideAdapter extends RecyclerView.Adapter<AcceptedRideAdapte
     public int getItemCount() {
         return acceptedRides.size();
     }
+
+    /**
+     * ViewHolder for each accepted ride in the RecyclerView.
+     */
 
     static class AcceptedRideViewHolder extends RecyclerView.ViewHolder {
         TextView dateTextView, timeTextView, fromToTextView, roleTextView;
@@ -78,6 +87,11 @@ public class AcceptedRideAdapter extends RecyclerView.Adapter<AcceptedRideAdapte
         }
     }
 
+    /**
+     * Confirms the ride for the current user and checks whether both parties have confirmed the ride.
+     * If both users confirm it moves the ride to history and exchanges points.
+     * @param ride
+     */
     private void confirmRide(AcceptedRide ride) {
         DatabaseReference rideRef = FirebaseDatabase.getInstance().getReference("acceptedRides").child(ride.getAcceptedRideID());
         String currentUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -98,15 +112,12 @@ public class AcceptedRideAdapter extends RecyclerView.Adapter<AcceptedRideAdapte
 
                     if (updatedRide.isConfirmedByDriver() && updatedRide.isConfirmedByRider()) {
                         adjustRidePointsAndMoveToHistory(updatedRide);
-
-
                         Toast.makeText(
                                 context,
                                 "Ride confirmed successfully! Points updated.",
                                 Toast.LENGTH_SHORT
                         ).show();
                     } else {
-
                         Toast.makeText(
                                 context,
                                 "Waiting for the other user to confirm.",
@@ -119,31 +130,33 @@ public class AcceptedRideAdapter extends RecyclerView.Adapter<AcceptedRideAdapte
 
             @Override
             public void onCancelled(@NonNull com.google.firebase.database.DatabaseError error) {
-                // handle error if needed
             }
         });
     }
-
+    /**
+     * Adjusts points for both users and move the ride to history.
+     * Delete accepted ride from the active list.
+     * @param ride The ride that was fully confirmed.
+     */
     private void adjustRidePointsAndMoveToHistory(AcceptedRide ride) {
         DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
         DatabaseReference historyRef = FirebaseDatabase.getInstance().getReference("rideHistory");
         DatabaseReference acceptedRideRef = FirebaseDatabase.getInstance().getReference("acceptedRides").child(ride.getAcceptedRideID());
 
-        // Add points to driver
+        // add points
         usersRef.child(ride.getDriverUID()).child("points").get().addOnSuccessListener(snapshot -> {
             Integer points = snapshot.getValue(Integer.class);
             if (points == null) points = 0;
             usersRef.child(ride.getDriverUID()).child("points").setValue(points + 50);
         });
 
-        // Deduct points from rider
+        // deduct points
         usersRef.child(ride.getRiderUID()).child("points").get().addOnSuccessListener(snapshot -> {
             Integer points = snapshot.getValue(Integer.class);
             if (points == null) points = 0;
             usersRef.child(ride.getRiderUID()).child("points").setValue(points - 50);
         });
-
-        // Move to rideHistory
+        //move to history and remove from accepted ride
         historyRef.push().setValue(ride)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

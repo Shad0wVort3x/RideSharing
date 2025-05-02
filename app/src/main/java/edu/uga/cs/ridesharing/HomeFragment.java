@@ -20,7 +20,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-
+/**
+ * HomeFragment serves as main dashboard for user after login.
+ * Displays ride-related options such as posting/viewing ride offers and requests,
+ * viewing accepted rides, ride history, managing user rides, logging out, and showing notifications.
+ */
 public class HomeFragment extends Fragment {
 
     private Button postRideOfferButton, postRideRequestButton, viewRideOffersButton, viewRideRequestsButton, viewAcceptedRidesButton, logoutButton, viewRideHistoryButton, manageMyRidesButton;
@@ -29,20 +33,32 @@ public class HomeFragment extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference notificationsRef;
     private ValueEventListener notificationListener;
-
+    /**
+     * Required empty public constructor.
+     */
     public HomeFragment() {}
-
+    /**
+     * Inflates layout for HomeFragment.
+     * @param inflater LayoutInflater
+     * @param container ViewGroup container
+     * @param savedInstanceState Previous state if any
+     * @return Inflated View
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
-
+    /**
+     * Initializes UI components, sets button click listeners,
+     * fetches user points, and attaches a listener to notifications.
+     * @param view The fragment's root view
+     * @param savedInstanceState Saved state if any
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Buttons
         postRideOfferButton = view.findViewById(R.id.postRideOfferButton);
         postRideRequestButton = view.findViewById(R.id.postRideRequestButton);
         viewRideOffersButton = view.findViewById(R.id.viewRideOffersButton);
@@ -51,22 +67,20 @@ public class HomeFragment extends Fragment {
         logoutButton = view.findViewById(R.id.logoutButton);
         viewRideHistoryButton = view.findViewById(R.id.viewRideHistoryButton);
         manageMyRidesButton = view.findViewById(R.id.manageMyRidesButton);
-        // Points
         pointsTextView = view.findViewById(R.id.pointsTextView);
 
-        // Notification stuff
         FrameLayout notificationIconLayout = view.findViewById(R.id.notificationIconLayout);
         notificationBadge = view.findViewById(R.id.notificationBadge);
 
         mAuth = FirebaseAuth.getInstance();
 
-        // Setup buttons
+
         setupButtonListeners();
 
-        // Load points
+
         loadUserPoints();
 
-        // Setup notification badge
+        // setup notification badge
         notificationsRef = FirebaseDatabase.getInstance()
                 .getReference("notifications")
                 .child(mAuth.getCurrentUser().getUid());
@@ -94,7 +108,9 @@ public class HomeFragment extends Fragment {
                     .commit();
         });
     }
-
+    /**
+     * Sets click listeners for each button on the home screen.
+     */
     private void setupButtonListeners() {
         postRideOfferButton.setOnClickListener(v -> navigateTo(new PostRideOfferFragment()));
         postRideRequestButton.setOnClickListener(v -> navigateTo(new PostRideRequestFragment()));
@@ -114,20 +130,29 @@ public class HomeFragment extends Fragment {
             navigateTo(new LoginFragment());
         });
     }
-
+    /**
+     * Navigates to provided fragment and adds the transaction to the back stack.
+     * @param fragment Fragment to navigate to
+     */
     private void navigateTo(Fragment fragment) {
         getParentFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .commit();
     }
-
+    /**
+     * Called when fragment becomes visible again.
+     * Reloads user points from Firebase.
+     */
     @Override
     public void onResume() {
         super.onResume();
         loadUserPoints();
     }
 
+    /**
+     * Loads and displays current user's ride points from Firebase.
+     */
     private void loadUserPoints() {
         String uid = mAuth.getCurrentUser().getUid();
         DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
@@ -143,7 +168,9 @@ public class HomeFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> pointsTextView.setText("Ride Points: 0"));
     }
-
+    /**
+     * Detaches the notification listener to avoid memory leaks when the view is destroyed.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

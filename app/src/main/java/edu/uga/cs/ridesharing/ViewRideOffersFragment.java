@@ -27,7 +27,11 @@ import java.util.Map;
 
 import edu.uga.cs.ridesharing.adapter.RideOfferAdapter;
 import edu.uga.cs.ridesharing.model.RideOffer;
-
+/**
+ * Fragment that displays a list of available ride offers.
+ * Allows the current user to view and accept ride offers.
+ * Accepted offers are moved to the "acceptedRides" node in Firebase.
+ */
 public class ViewRideOffersFragment extends Fragment implements RideOfferAdapter.OnRideOfferClickListener {
 
     private RecyclerView recyclerView;
@@ -35,23 +39,37 @@ public class ViewRideOffersFragment extends Fragment implements RideOfferAdapter
     private List<RideOffer> rideOfferList;
     private DatabaseReference databaseReference;
     private FirebaseAuth mAuth;
-
+    /**
+     * Default constructor.
+     */
     public ViewRideOffersFragment() {
-        // Required empty public constructor
-    }
 
+    }
+    /**
+     * Inflates the layout for this fragment.
+     *
+     * @param inflater LayoutInflater object to inflate views.
+     * @param container ViewGroup container.
+     * @param savedInstanceState Previously saved state, if any.
+     * @return The inflated layout view.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_view_ride_offers, container, false);
     }
-
+    /**
+     * Initializes UI components and sets up Firebase data loading and toolbar.
+     *
+     * @param view The root view of the fragment.
+     * @param savedInstanceState Previously saved state, if any.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         androidx.appcompat.widget.Toolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.setTitle("Ride Offers");
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back); // your back arrow drawable
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         toolbar.setNavigationOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new HomeFragment())
@@ -70,7 +88,10 @@ public class ViewRideOffersFragment extends Fragment implements RideOfferAdapter
         loadRideOffers();
 
     }
-
+    /**
+     * Loads ride offers from Firebase, filters out accepted ones,
+     * sorts them by date and time, and updates the RecyclerView.
+     */
     private void loadRideOffers() {
         databaseReference.orderByChild("date").addValueEventListener(new ValueEventListener() {
             @Override
@@ -83,7 +104,7 @@ public class ViewRideOffersFragment extends Fragment implements RideOfferAdapter
                         rideOfferList.add(rideOffer);
                     }
                 }
-                // Sort manually by date, then time
+
                 rideOfferList.sort((o1, o2) -> {
                     try {
                         String dt1 = o1.getDate() + " " + o1.getTime();
@@ -95,7 +116,7 @@ public class ViewRideOffersFragment extends Fragment implements RideOfferAdapter
 
                         return dateTime1.compareTo(dateTime2);
                     } catch (Exception e) {
-                        return 0; // fallback if parsing fails
+                        return 0;
                     }
                 });
                 rideOfferAdapter.notifyDataSetChanged();
@@ -107,12 +128,24 @@ public class ViewRideOffersFragment extends Fragment implements RideOfferAdapter
             }
         });
     }
-
+    /**
+     * Callback method from the RideOfferAdapter when a user clicks to accept a ride.
+     *
+     * @param rideOffer The ride offer that was clicked.
+     */
     @Override
     public void onRideOfferClick(RideOffer rideOffer) {
         acceptRideOffer(rideOffer);
     }
-
+    /**
+     * Accepts the selected ride offer:
+     * - Marks it as accepted in Firebase.
+     * - Saves it to "acceptedRides".
+     * - Sends a notification to the driver.
+     * - Navigates back to the home screen.
+     *
+     * @param rideOffer The ride offer being accepted.
+     */
     private void acceptRideOffer(RideOffer rideOffer) {
         String riderUID = mAuth.getCurrentUser().getUid();
         DatabaseReference rideOffersRef = databaseReference.child(rideOffer.getRideID());
@@ -136,7 +169,7 @@ public class ViewRideOffersFragment extends Fragment implements RideOfferAdapter
                         acceptedRidesRef.push().setValue(acceptedRide)
                                 .addOnCompleteListener(acceptTask -> {
                                     if (acceptTask.isSuccessful()) {
-                                        // Send notification AFTER ride accepted is saved
+
                                         notificationsRef.child(rideOffer.getDriverUID())
                                                 .push()
                                                 .setValue("Your ride offer from " + rideOffer.getFrom() + " to " + rideOffer.getTo() + " was accepted!");

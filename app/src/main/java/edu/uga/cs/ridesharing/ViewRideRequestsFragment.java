@@ -29,7 +29,10 @@ import java.util.Map;
 
 import edu.uga.cs.ridesharing.adapter.RideRequestAdapter;
 import edu.uga.cs.ridesharing.model.RideRequest;
-
+/**
+ * Fragment for displaying the ride history of the current user.
+ * This includes all completed rides where the user acted as a driver or rider.
+ */
 public class ViewRideRequestsFragment extends Fragment implements RideRequestAdapter.OnRideRequestClickListener {
 
     private RecyclerView recyclerView;
@@ -38,16 +41,32 @@ public class ViewRideRequestsFragment extends Fragment implements RideRequestAda
     private DatabaseReference databaseReference;
     private FirebaseAuth mAuth;
 
+    /**
+     * Default constructor.
+     */
     public ViewRideRequestsFragment() {
-        // Required empty public constructor
-    }
 
+    }
+    /**
+     * Inflates the fragment layout for ride history.
+     *
+     * @param inflater           LayoutInflater used to inflate views.
+     * @param container          Optional parent view to attach the fragment UI to.
+     * @param savedInstanceState Previously saved state, if any.
+     * @return The inflated layout view.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_view_ride_requests, container, false);
     }
-
+    /**
+     * Initializes UI components after view creation, sets up the RecyclerView,
+     * toolbar, and starts loading ride history from Firebase.
+     *
+     * @param view               Root view of the fragment.
+     * @param savedInstanceState Previously saved state, if any.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -70,7 +89,10 @@ public class ViewRideRequestsFragment extends Fragment implements RideRequestAda
 
         loadRideRequests();
     }
-
+    /**
+     * Retrieves ride history from Firebase where the current user was either a driver or a rider.
+     * Updates the RecyclerView with the results.
+     */
     private void loadRideRequests() {
         databaseReference.orderByChild("date").addValueEventListener(new ValueEventListener() {
             @Override
@@ -116,7 +138,15 @@ public class ViewRideRequestsFragment extends Fragment implements RideRequestAda
     public void onRideRequestClick(RideRequest rideRequest) {
         acceptRideRequest(rideRequest);
     }
-
+    /**
+     * Accepts the selected ride offer:
+     * - Marks it as accepted in Firebase.
+     * - Saves it to "acceptedRides".
+     * - Sends a notification to the driver.
+     * - Navigates back to the home screen.
+     *
+     * @param rideRequest The ride offer being accepted.
+     */
     private void acceptRideRequest(RideRequest rideRequest) {
         String driverUID = mAuth.getCurrentUser().getUid();
         DatabaseReference rideRequestsRef = databaseReference.child(rideRequest.getRequestID());
@@ -140,7 +170,7 @@ public class ViewRideRequestsFragment extends Fragment implements RideRequestAda
                         acceptedRidesRef.push().setValue(acceptedRide)
                                 .addOnCompleteListener(acceptTask -> {
                                     if (acceptTask.isSuccessful()) {
-                                        // Send notification to rider AFTER ride accepted is saved
+
                                         notificationsRef.child(rideRequest.getRiderUID())
                                                 .push()
                                                 .setValue("Your ride request from " + rideRequest.getFrom() + " to " + rideRequest.getTo() + " was accepted!");
